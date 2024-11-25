@@ -1,5 +1,5 @@
 const Router = require('koa-router')
-const router = new Router()
+const router = new Router({ prefix: '/api' })
 
 //导入用户路由处理函数对应模块
 const user_handler = require('../router_handler/user')
@@ -9,7 +9,7 @@ const { reg_login_schema } = require('../schema/user')
 //导入验证数据的中间件
 const validate = require('../utils/validate')
 
-router.post('/register', validate( reg_login_schema ), user_handler.register)
+router.post('/regist', validate( reg_login_schema ), user_handler.register)
 router.post('/login', validate( reg_login_schema ), user_handler.login)
 
 module.exports = router

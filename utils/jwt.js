@@ -1,5 +1,5 @@
 const jwt = require('koa-jwt')
-const config = require('./config')
+const config = require('../config')
 
 // 配置 JWT 中间件
 const jwtMiddleware = jwt({
@@ -8,8 +8,8 @@ const jwtMiddleware = jwt({
 }).unless({
   path: [
     // 不需要验证 Token 的路由
-    /^\/login/, // 登录
-    /^\/register/ // 注册
+    /^\/api\/login$/, // 允许登录接口不需要验证
+    /^\/api\/register$/ // 允许注册接口不需要验证
   ]
 })
 

@@ -6,6 +6,7 @@ const app = new Koa()
 const port = 3007
 //引入路由
 const userRouters = require('./router/user')
+const itemRouters = require('./router/item')
 
 //导入并配置cors中间件
 const koaCors = require('koa-cors')
@@ -20,6 +21,7 @@ app.use(jwtMiddleware)
 
 //将路由模块注册到应用中
 app.use(userRouters.routes()).use(userRouters.allowedMethods())
+app.use(itemRouters.routes()).use(itemRouters.allowedMethods())
 
 //定义错误级别的中间件
 app.use(async (ctx, next) => {
