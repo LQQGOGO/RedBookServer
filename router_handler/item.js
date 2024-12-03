@@ -3,23 +3,55 @@ const db = require('../utils/db')
 
 //获得笔记列表
 exports.getItemList = async ctx => {
-  try {
-    // 从数据库中查询所有笔记
-    const [items] = await db.query('SELECT * FROM items_list') // 使用解构语法获取结果
+   try {
+     // 获取分页参数，默认为第一页，每页 20 条
+     const { page = 1, pageSize = 20 } = ctx.query
 
-    // 对返回的数据进行检查
-    if (items.length === 0) {
-      ctx.status = 404 // 使用 404 状态码表示没有找到数据
-      ctx.body = { message: '没有找到笔记数据' }
-      return
-    }
-    // 将查询到的结果作为响应返回
-    ctx.status = 200
-    ctx.body = items
-  } catch (error) {
-    ctx.status = 500 // Internal Server Error
-    ctx.body = { message: error.message || '服务器内部错误' }
-  }
+     // 转换为数字类型，确保输入合法
+     const pageNumber = Math.max(1, parseInt(page)) // 页码最小值为 1
+     const pageSizeNumber = Math.max(1, parseInt(pageSize)) // 每页至少 1 条
+
+     // 计算偏移量
+     const offset = (pageNumber - 1) * pageSizeNumber
+
+     // 从数据库中查询总记录数
+     const [[{ total }]] = await db.query(
+       'SELECT COUNT(*) AS total FROM items_list'
+     )
+
+     // 从数据库中查询当前页的数据
+     const [items] = await db.query(
+       'SELECT * FROM items_list LIMIT ? OFFSET ?',
+       [pageSizeNumber, offset]
+     )
+
+     // 如果没有数据
+     if (items.length === 0) {
+       ctx.status = 200
+       ctx.body = {
+         message: '没有找到更多笔记数据',
+         data: [],
+         total,
+         page: pageNumber,
+         pageSize: pageSizeNumber
+       }
+       return
+     }
+
+     // 返回分页数据
+     ctx.status = 200
+     ctx.body = {
+       message: '请求成功',
+       data: items,
+       total,
+       page: pageNumber,
+       pageSize: pageSizeNumber
+     }
+   } catch (error) {
+     console.error('获取笔记列表失败:', error)
+     ctx.status = 500 // Internal Server Error
+     ctx.body = { message: error.message || '服务器内部错误' }
+   }
 }
 
 // 获得笔记详情
