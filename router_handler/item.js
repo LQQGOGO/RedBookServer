@@ -4,8 +4,8 @@ const db = require('../utils/db')
 //获得笔记列表
 exports.getItemList = async ctx => {
    try {
-     // 获取分页参数，默认为第一页，每页 20 条
-     const { page = 1, pageSize = 20 } = ctx.query
+     // 获取分页参数，默认为第一页，每页 20 条，频道默认为 "recommend"
+     const { page = 1, pageSize = 20, channel = 'recommend' } = ctx.query
 
      // 转换为数字类型，确保输入合法
      const pageNumber = Math.max(1, parseInt(page)) // 页码最小值为 1
@@ -16,13 +16,14 @@ exports.getItemList = async ctx => {
 
      // 从数据库中查询总记录数
      const [[{ total }]] = await db.query(
-       'SELECT COUNT(*) AS total FROM items_list'
+       'SELECT COUNT(*) AS total FROM items_list WHERE channel = ?',
+       [channel]
      )
 
      // 从数据库中查询当前页的数据
      const [items] = await db.query(
-       'SELECT * FROM items_list LIMIT ? OFFSET ?',
-       [pageSizeNumber, offset]
+       'SELECT * FROM items_list WHERE channel = ? LIMIT ? OFFSET ?',
+       [channel, pageSizeNumber, offset]
      )
 
      // 如果没有数据
