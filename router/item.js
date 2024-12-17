@@ -6,5 +6,6 @@ const item_handler = require('../router_handler/item')
 
 router.get('/item_detail', item_handler.getItemDetail)
 router.get('/item_list', item_handler.getItemList)
+router.post('/item_like', item_handler.addLike)
 
 module.exports = router
