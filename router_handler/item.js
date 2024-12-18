@@ -147,3 +147,38 @@ exports.addLike = async ctx => {
     ctx.body = { message: error.message || '服务器内部错误' }
   }
 }
+
+//获得点赞列表
+exports.getLoveList = async ctx => {
+  try {
+    // 从数据库中查询已点赞的数据
+    const [items] = await db.query('SELECT * FROM items_list WHERE liked = ?', [
+      1
+    ])
+    // 计算总数
+    const total = items ? items.length : 0
+
+    // 如果没有数据
+    if (items.length === 0) {
+      ctx.status = 200
+      ctx.body = {
+        message: '没有找到更多笔记数据',
+        data: [],
+        total
+      }
+      return
+    }
+
+    // 返回数据
+    ctx.status = 200
+    ctx.body = {
+      message: '请求成功',
+      data: items,
+      total
+    }
+  } catch (error) {
+    console.error('获取点赞列表失败:', error)
+    ctx.status = 500 // Internal Server Error
+    ctx.body = { message: error.message || '服务器内部错误' }
+  }
+}
