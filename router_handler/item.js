@@ -58,7 +58,7 @@ exports.getItemList = async ctx => {
 // 获得笔记详情
 exports.getItemDetail = async ctx => {
   try {
-    const { note_id } = ctx.request.body
+    const { note_id } = ctx.query
 
     if (!note_id) {
       ctx.status = 400
@@ -89,7 +89,6 @@ exports.getItemDetail = async ctx => {
 exports.addLike = async ctx => {
   try {
     const { note_id } = ctx.request.body
-
     // 参数校验
     if (!note_id) {
       ctx.status = 400
@@ -98,11 +97,12 @@ exports.addLike = async ctx => {
     }
 
     // 查询数据库中对应的文章
-    const [note] = await db.query(
+    const [notes] = await db.query(
       'SELECT * FROM items_list WHERE note_id = ?',
       [note_id]
     )
-
+    const note = notes[0]
+    
     if (!note) {
       ctx.status = 404
       ctx.body = { error: '文章不存在' }
@@ -112,7 +112,7 @@ exports.addLike = async ctx => {
     // 根据当前点赞状态，决定是点赞还是取消点赞
     let newLikedStatus = 0
     let newLikedCount = note.liked_count
-
+    
     if (note.liked === 0) {
       // 点赞操作
       newLikedStatus = 1
